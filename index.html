@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 访问验证 - 我的私人项目</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .auth-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .message {
+            margin-bottom: 35px;
+        }
+
+        .message p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .password-form {
+            text-align: left;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #444;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="password"]:focus {
+            border-color: #667eea;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fdf2f2;
+            border-radius: 8px;
+            border: 1px solid #fbd5d5;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .hint {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .hint p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer p {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .loading .btn-text {
+            display: none;
+        }
+
+        .loading .btn-loading {
+            display: inline-block !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 30px 25px;
+            }
+            
+            .lock-icon {
+                font-size: 3rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="auth-box">
+            <div class="logo">
+                <span class="lock-icon">🔒</span>
+                <h1>访问验证</h1>
+            </div>
+            
+            <div class="message">
+                <p>此内容受密码保护，请输入访问密码</p>
+            </div>
+            
+            <form id="passwordForm" class="password-form">
+                <div class="input-group">
+                    <label for="password">访问密码</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="请输入密码"
+                        required
+                    >
+                    <div class="error-message" id="errorMessage">
+                        密码错误，请重试
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">解锁内容</span>
+                    <span class="btn-loading" style="display: none;">验证中...</span>
+                </button>
+            </form>
+            
+            <div class="hint">
+                <p>💡 提示：密码是 <strong>github2024</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>安全访问系统 | 🔐 受保护内容</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置项 - 在这里修改密码
+        const CONFIG = {
+            PASSWORD: "github2024",
+            MAX_ATTEMPTS: 5,
+            LOCK_TIME: 15,
+            REDIRECT_URL: "main-content.html",
+            REMEMBER_ME: true
+        };
+
+        let State = {
+            attempts: 0,
+            locked: false,
+            lockUntil: null
+        };
+
+        const elements = {
+            form: document.getElementById('passwordForm'),
+            passwordInput: document.getElementById('password'),
+            errorMessage: document.getElementById('errorMessage'),
+            submitBtn: document.getElementById('passwordForm').querySelector('button'),
+            btnText: document.querySelector('.btn-text'),
+            btnLoading: document.querySelector('.btn-loading')
+        };
+
+        function init() {
+            loadState();
+            checkLockStatus();
+            setupEventListeners();
+            autoFocusInput();
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem('authState');
+            if (savedState) {
+                State = { ...State, ...JSON.parse(savedState) };
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('authState', JSON.stringify(State));
+        }
+
+        function checkLockStatus() {
+            if (State.locked && State.lockUntil) {
+                const now = Date.now();
+                if (now < State.lockUntil) {
+                    const minutesLeft = Math.ceil((State.lockUntil - now) / 60000);
+                    showError(`输入错误次数过多，请 ${minutesLeft} 分钟后再试`);
+                    disableForm();
+                } else {
+                    State.locked = false;
+                    State.attempts = 0;
+                    State.lockUntil = null;
+                    saveState();
+                    enableForm();
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            elements.form.addEventListener('submit', handleSubmit);
+            elements.passwordInput.addEventListener('input', clearError);
+            elements.passwordInput.addEventListener('keypress', handleKeyPress);
+        }
+
+        function autoFocusInput() {
+            setTimeout(() => {
+                elements.passwordInput.focus();
+            }, 500);
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            if (State.locked) {
+                showError('账户已被锁定，请稍后再试');
+                return;
+            }
+            
+            const password = elements.passwordInput.value.trim();
+            
+            if (!password) {
+                showError('请输入密码');
+                return;
+            }
+            
+            validatePassword(password);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                handleSubmit(event);
+            }
+        }
+
+        function clearError() {
+            elements.errorMessage.style.display = 'none';
+            elements.errorMessage.textContent = '';
+        }
+
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+            elements.form.classList.add('shake');
+            
+            setTimeout(() => {
+                elements.form.classList.remove('shake');
+            }, 500);
+        }
+
+        function showLoading() {
+            elements.submitBtn.classList.add('loading');
+            elements.submitBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            elements.submitBtn.classList.remove('loading');
+            elements.submitBtn.disabled = false;
+        }
+
+        function disableForm() {
+            elements.passwordInput.disabled = true;
+            elements.submitBtn.disabled = true;
+        }
+
+        function enableForm() {
+            elements.passwordInput.disabled = false;
+            elements.submitBtn.disabled = false;
+            elements.passwordInput.focus();
+        }
+
+        function validatePassword(password) {
+            showLoading();
+            
+            setTimeout(() => {
+                if (password === CONFIG.PASSWORD) {
+                    handleSuccess();
+                } else {
+                    handleFailure();
+                }
+                hideLoading();
+            }, 800);
+        }
+
+        function handleSuccess() {
+            State.attempts = 0;
+            State.locked = false;
+            State.lockUntil = null;
+            saveState();
+            
+            if (CONFIG.REMEMBER_ME) {
+                sessionStorage.setItem('authenticated', 'true');
+            }
+            
+            window.location.href = CONFIG.REDIRECT_URL;
+        }
+
+        function handleFailure() {
+            State.attempts++;
+            saveState();
+            
+            const attemptsLeft = CONFIG.MAX_ATTEMPTS - State.attempts;
+            
+            if (CONFIG.MAX_ATTEMPTS > 0 && State.attempts >= CONFIG.MAX_ATTEMPTS) {
+                State.locked = true;
+                State.lockUntil = Date.now() + (CONFIG.LOCK_TIME * 60 * 1000);
+                saveState();
+                
+                showError(`输入错误次数过多，账户已被锁定 ${CONFIG.LOCK_TIME} 分钟`);
+                disableForm();
+            } else if (attemptsLeft > 0) {
+                showError(`密码错误，还剩 ${attemptsLeft} 次尝试机会`);
+            } else {
+                showError('密码错误，请重试');
+            }
+            
+            elements.passwordInput.value = '';
+            elements.passwordInput.focus();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
